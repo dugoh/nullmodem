@@ -652,7 +652,7 @@ static void nullmodem_unthrottle(struct tty_struct * tty)
 
 static struct tty_operations serial_ops =
 {
-	.ope		= nullmodem_open,
+	.open		= nullmodem_open,
 	.close		= nullmodem_close,
 	.throttle	= nullmodem_throttle,
 	.unthrottle	= nullmodem_unthrottle,
