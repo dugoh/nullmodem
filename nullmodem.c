@@ -619,7 +619,6 @@ static void nullmodem_send_xchar(struct tty_struct *tty, char ch)
 static void nullmodem_throttle(struct tty_struct * tty)
 {
 	struct nullmodem_end *end = tty->driver_data;
-	unsigned long flags;
 
 	dprintf("%s - #%d\n", __FUNCTION__, tty->index);
 
@@ -636,6 +635,7 @@ static void nullmodem_throttle(struct tty_struct * tty)
 
 static void nullmodem_unthrottle(struct tty_struct * tty)
 {
+	unsigned long flags;
 	struct nullmodem_end *end = tty->driver_data;
 
 	dprintf("%s - #%d\n", __FUNCTION__, tty->index);
