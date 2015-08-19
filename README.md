@@ -1,13 +1,7 @@
 This implements a virtual nullmodem driver for linux as a kernel module.
 
-I wrote this when I needed a real virtual nullmodem emulator that could emulate the control lines and
-handle ioctl() calls for TIOCMIWAIT like a real hardware device.
-
-I found the tty0tty project on sourceforge but it did not do what I needed,
-so I took it as a basis and started hacking.
-
-I also posted a response on stackoverflow where someone asked for a nullmodem emulator:
-http://stackoverflow.com/questions/52187/virtual-serial-port-for-linux
+See http://stackoverflow.com/questions/52187/virtual-serial-port-for-linux
+for its origins.
 
 Introduction:
 
@@ -45,21 +39,21 @@ Known problems / limitations:
 - a 4k buffer is allocated for each virtual COM port (when opened). This may be a bit large.
 - The timer that is used to emulate the line speed fires 20 times per second, even when no port is open
   (although it does not do much apart from checking every port whether it is open).
-  This may put an unnecessary load on the system. However, I have found this not to be a problem.
+  This may put an unnecessary load on the system.
 
 
 Installation:
 
 Just unpack the tarball somewhere and run make in the nullmodem directory.
-You will need to have the "kernel-headers" package installed to compile the module.
-I included a small shell script, called "reload", that (re-)loads the module and sets permissions
+You will need to have "linux-headers" (>3.2) installed to compile the module.
+A small shell script, called "reload", (re-)loads the module and sets permissions
 of the /dev/nmp* devices.
 
 Tweaking:
 
 There are a few defines that can be tweaked:
 - NULLMODEM_PAIRS: This defines how many virtual com port pairs will be created when the module is loaded.
-  Currently, there will be 4 pairs created (8 devices).
+  Currently, there will be 2 pairs created (4 devices).
 - TIMER_INTERVAL: This determines the interval at which the timer fires.
   If you slow the timer down, more data will need to be transfered at each timer tick.
   Make sure the buffers are large enough. The timer rate and the highest baud rate determine the needed buffer size.
@@ -68,7 +62,7 @@ There are a few defines that can be tweaked:
   These get filled by writes to the port and are drained by the timer.
   The timer also uses a buffer of this size to transfer data from one end of the virtual line to the other.
 - NULLMODEM_MAJOR: this is the major device number. This is from the experimental range.
-  Maybe someday it will be an officially assigned number :)
+  Maybe someday it will be an officially assigned number.
 
 In the makefile, you can turn on debug mode by un-commenting the "DEBUG = y" line.
 The driver then prints diagnostic messages to the kernel log. You can watch this with a "tail -f /var/log/kern.log".
@@ -77,18 +71,7 @@ You can uncomment them if you want.
 
 Notes/disclaimer:
 
-This was my first attempt at kernel hacking. Likewise I did not do any extensive stability testing.
-If it fails for you - bad luck :)
-Well, you can contact me, and I might try and find a fix.
-But, I wrote this quite some time ago, and I don't remember everything about writing kernel drivers,
-or which features this driver may be lacking.
-I apologize if the code style does not conform to any linux kernel coding rules.
+This does not conform to any linux kernel coding standard.
 
 If anyone of the kernel staff wants to include this in the kernel distribution as an experimental driver,
-please go ahead. Maybe this thing will come to life and/or find a new maintainer.
-
-
-That said, may it be useful to you!
-
-Peter Remmers
-pitti98@googlemail.com
+please go ahead. Maybe this thing will come to life.
