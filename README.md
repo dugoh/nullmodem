@@ -71,7 +71,8 @@ You can uncomment them if you want.
 
 Notes/disclaimer:
 
-This does not conform to any linux kernel coding standard.
+- This module is broken
+- The code does not conform to any linux kernel coding standard.
 
 If anyone of the kernel staff wants to include this in the kernel distribution as an experimental driver,
 please go ahead. Maybe this thing will come to life.
