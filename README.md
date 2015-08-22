@@ -1,4 +1,4 @@
-This implements a virtual nullmodem driver for linux as a kernel module.
+This should implement a virtual nullmodem driver for linux as a kernel module. Maybe it does, maybe it doesn't. It has not been tested yet.
 
 See http://stackoverflow.com/questions/52187/virtual-serial-port-for-linux
 for its origins.
@@ -12,7 +12,6 @@ Two consecutive devices are linked with each other:
 
 /dev/nmp0 <-> /dev/nmp1  
 /dev/nmp2 <-> /dev/nmp3  
-etc.
 
 
 Features:
@@ -45,7 +44,7 @@ Known problems / limitations:
 Installation:
 
 Just unpack the tarball somewhere and run make in the nullmodem directory.
-You will need to have "linux-headers" (>3.2) installed to compile the module.
+You will need to have "linux-headers" (>3.7) installed to compile the module.
 A small shell script, called "reload", (re-)loads the module and sets permissions
 of the /dev/nmp* devices.
 
@@ -71,8 +70,7 @@ You can uncomment them if you want.
 
 Notes/disclaimer:
 
-- This module is broken
+- This module seems broken
 - The code does not conform to any linux kernel coding standard.
 
-If anyone of the kernel staff wants to include this in the kernel distribution as an experimental driver,
-please go ahead. Maybe this thing will come to life.
+If anyone of the linux kernel staff wants to include a nullmodem in the kernel, please do. FreeBSD has one since 4.4.
