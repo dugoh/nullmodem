@@ -1,6 +1,6 @@
 /* ########################################################################
 
-   nullmodem - linux (>3.2) null modem emulator (kernel module)
+   nullmodem - linux (>3.7) null modem emulator (kernel module)
 
    ########################################################################
 
@@ -43,7 +43,7 @@
 #include <linux/kfifo.h>
 #include <asm/uaccess.h>
 
-#define DRIVER_VERSION "v3.2"
+#define DRIVER_VERSION "v3.7"
 #define DRIVER_AUTHOR "Jacob Goense <dugo@xs4all.nl>"
 #define DRIVER_DESC "nullmodem driver"
 
@@ -65,6 +65,8 @@ MODULE_LICENSE("GPL");
 //#define TIMER_INTERVAL HZ
 #define TX_BUF_SIZE 4096
 #define WAKEUP_CHARS 256
+
+static struct tty_port *tport;
 
 struct nullmodem_pair;
 struct nullmodem_end
@@ -279,12 +281,17 @@ static int nullmodem_open(struct tty_struct *tty, struct file *file)
 	struct nullmodem_pair *pair = &pair_table[tty->index/2];
 	struct nullmodem_end *end = ((tty->index&1) ? &pair->b : &pair->a);
 	unsigned long flags;
+	int index;
 	int err = -ENOMEM;
 
 	dprintf("%s - #%d c:%d\n", __FUNCTION__, tty->index, tty->count);
 
 	if (tty->count > 1)
 		return 0;
+
+	index = tty->index;
+	tport[index].tty=tty;
+	tty->port = &tport[index];
 
 	spin_lock_irqsave(&end->pair->spin, flags);
 	if (kfifo_alloc(&end->fifo, TX_BUF_SIZE, GFP_KERNEL))
@@ -692,8 +699,10 @@ static int __init nullmodem_init(void)
 	}
 
 	/* allocate the tty driver */
-	nullmodem_tty_driver = alloc_tty_driver(NULLMODEM_PAIRS*2);
-	if (!nullmodem_tty_driver)
+	nullmodem_tty_driver = tty_alloc_driver(NULLMODEM_PAIRS*2,
+		TTY_DRIVER_RESET_TERMIOS |
+		TTY_DRIVER_REAL_RAW);
+	if (IS_ERR(nullmodem_tty_driver))
 		return -ENOMEM;
 
 	/* initialize the tty driver */
@@ -704,7 +713,6 @@ static int __init nullmodem_init(void)
 	nullmodem_tty_driver->major = NULLMODEM_MAJOR;
 	nullmodem_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
 	nullmodem_tty_driver->subtype = SERIAL_TYPE_NORMAL;
-	nullmodem_tty_driver->flags = TTY_DRIVER_RESET_TERMIOS | TTY_DRIVER_REAL_RAW ;
 	/* no more devfs subsystem */
 	nullmodem_tty_driver->init_termios = tty_std_termios;
 	nullmodem_tty_driver->init_termios.c_iflag = 0;
@@ -715,6 +723,12 @@ static int __init nullmodem_init(void)
 	nullmodem_tty_driver->init_termios.c_ospeed = 38400;
 
 	tty_set_operations(nullmodem_tty_driver, &serial_ops);
+
+	for (i = 0; i < NULLMODEM_PAIRS; ++i)
+	{
+		tty_port_init(&tport[i]);
+		tty_port_link_device(&tport[i],nullmodem_tty_driver, i);
+	}
 
 	/* register the tty driver */
 	retval = tty_register_driver(nullmodem_tty_driver);
@@ -742,7 +756,10 @@ static void __exit nullmodem_exit(void)
 	del_timer_sync(&nullmodem_timer);
 
 	for (i = 0; i < NULLMODEM_PAIRS*2; ++i)
+	{
 		tty_unregister_device(nullmodem_tty_driver, i);
+		tty_port_destroy(&tport[i]);
+	}
 	tty_unregister_driver(nullmodem_tty_driver);
 
 	/* shut down all of the timers and free the memory */
@@ -751,6 +768,7 @@ static void __exit nullmodem_exit(void)
 		pair_table[i].a.tty = NULL;
 		pair_table[i].b.tty = NULL;
 	}
+	kfree(tport);
 }
 
 module_init(nullmodem_init);
