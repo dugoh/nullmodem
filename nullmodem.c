@@ -682,6 +682,8 @@ static int __init nullmodem_init(void)
 
 	init_timer(&nullmodem_timer);
 	setup_timer(&nullmodem_timer, nullmodem_timer_proc, 0);
+	
+	tport = kmalloc(2*NULLMODEM_PAIRS*sizeof(struct tty_port),GFP_KERNEL);
 
 	for (i = 0; i < NULLMODEM_PAIRS; ++i)
 	{
