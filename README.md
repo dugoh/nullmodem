@@ -48,6 +48,19 @@ You will need to have "linux-headers" (>3.7) installed to compile the module.
 A small shell script, called "reload", (re-)loads the module and sets permissions
 of the /dev/nmp* devices.
 
+Of cource you can also add it as a driver in the kernel.
+
+```sh
+cd src/linux # or wherever your sources live
+mkdir -p drivers/nullmodem/
+get -nc -P drivers/nullmodem/ https://github.com/dugoh/nullmodem/raw/master/nullmodem.c
+echo 'obj-$(CONFIG_NULLMODEM) += nullmodem.o' >drivers/nullmodem/Makefile
+printf "config NULLMODEM\n\ttristate \"Virtual nullmodem driver\"\n\thelp\n\t  Creates pairs of virtual COM ports that are connected to each other.\n\t  The name of the devices are /dev/nmpX, where X is the number of the COM port.\n" >drivers/nullmodem/Kconfig
+echo 'obj-$(CONFIG_NULLMODEM)\t\t+= nullmodem/' >> drivers/Makefile
+sed -i~ -e's/endmenu/source "drivers\/nullmodem\/Kconfig"\n\nendmenu/' drivers/Kconfig
+echo CONFIG_NULLMODEM=y >>.config
+```
+
 Tweaking:
 
 There are a few defines that can be tweaked:
