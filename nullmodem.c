@@ -117,7 +117,8 @@ static void change_pins(struct nullmodem_end *end, unsigned int set, unsigned in
 	if (is_end_b)
 		old_pins = switch_pin_view(old_pins);
 
-	int new_pins = (old_pins & ~clear) | set;
+	int new_pins;
+	new_pins = (old_pins & ~clear) | set;
 	int change = old_pins ^ new_pins;
 
 	if (is_end_b)
@@ -164,7 +165,8 @@ static inline void handle_end(struct nullmodem_end *end)
 		//dprintf("%s - #%d: hw_stopped\n", __FUNCTION__, end->tty->index);
 		return;
 	}
-	unsigned nominal_bits = end->tty->termios.c_ospeed * FACTOR * delta_jiffies / HZ;
+	unsigned nominal_bits;
+	nominal_bits = end->tty->termios.c_ospeed * FACTOR * delta_jiffies / HZ;
 	unsigned add_bits = end->nominal_bit_count - end->actual_bit_count;
 	unsigned chars = (nominal_bits+add_bits) / end->char_length;
 	unsigned actual_bits = chars * end->char_length;
@@ -179,7 +181,8 @@ static inline void handle_end(struct nullmodem_end *end)
 	if (chars == 0)
 		return;
 
-	int cnt = kfifo_out(&end->fifo, drain, chars);
+	int cnt;
+	cnt = kfifo_out(&end->fifo, drain, chars);
 	if (cnt < chars)
 	{
 		end->nominal_bit_count = 0;
@@ -213,7 +216,8 @@ static inline void handle_end(struct nullmodem_end *end)
 				for (i=0; i<cnt; ++i)
 					drain[i] &= mask;
 			}
-			int written = tty_insert_flip_string(end->other->tty->port, drain, cnt);
+			int written;
+			written = tty_insert_flip_string(end->other->tty->port, drain, cnt);
 			if (written > 0)
 			{
 				//dprintf("%s - #%d -> #%d: copied %d bytes\n", __FUNCTION__, end->tty->index, end->other->tty->index, written);
@@ -259,7 +263,8 @@ static void handle_termios(struct tty_struct *tty)
 	else
 		change_pins(end, TIOCM_DTR|TIOCM_RTS, 0);
 
-	unsigned int cflag = tty->termios.c_cflag;
+	unsigned int cflag;
+	cflag = tty->termios.c_cflag;
 	end->char_length = 2;
 	switch (cflag & CSIZE)
 	{
