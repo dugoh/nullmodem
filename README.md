@@ -1,12 +1,11 @@
-This should implement a virtual nullmodem driver for linux as a kernel module. Maybe it does, maybe it doesn't. It has not been tested yet.
+This implements a virtual nullmodem driver for linux.
 
-See http://stackoverflow.com/questions/52187/virtual-serial-port-for-linux
-for its origins.
+See http://stackoverflow.com/questions/52187/virtual-serial-port-for-linux for its origins.
+
 
 Introduction:
 
-When the module is loaded, pairs of virtual COM ports are created that are connected to each other.
-The name of the devices are /dev/nmpX, where X is the number of the COM port. "nmp" stands for "null modem port".
+Pairs of virtual serial ports are created that are connected to each other. The name of the devices are /dev/nmpX, where X is the number of the serial port. "nmp" stands for "null modem port".
 
 Two consecutive devices are linked with each other:
 
@@ -35,7 +34,7 @@ Features:
 
 Known problems / limitations:
 - Flow control via XON/XOFF is not implemented.
-- a 4k buffer is allocated for each virtual COM port (when opened). This may be a bit large.
+- a 4k buffer is allocated for each virtual serial port (when opened). This may be a bit large.
 - The timer that is used to emulate the line speed fires 20 times per second, even when no port is open
   (although it does not do much apart from checking every port whether it is open).
   This may put an unnecessary load on the system.
@@ -43,12 +42,12 @@ Known problems / limitations:
 
 Installation:
 
-Just unpack the tarball somewhere and run make in the nullmodem directory.
+Clone the repo and run make in the nullmodem directory.
 You will need to have "linux-headers" (>3.7) installed to compile the module.
 A small shell script, called "reload", (re-)loads the module and sets permissions
 of the /dev/nmp* devices.
 
-Of cource you can also add it as a driver in the kernel.
+You can also add it as a driver in the kernel.
 
 ```sh
 cd src/linux # or wherever your sources live
@@ -62,8 +61,6 @@ echo CONFIG_NULLMODEM=y >>.config
 ```
 
 Tweaking:
-
-There are a few defines that can be tweaked:
 - NULLMODEM_PAIRS: This defines how many virtual com port pairs will be created when the module is loaded.
   Currently, there will be 2 pairs created (4 devices).
 - TIMER_INTERVAL: This determines the interval at which the timer fires.
@@ -82,8 +79,8 @@ Some messages that produce a high volume of logging output are commented out in 
 You can uncomment them if you want.
 
 Notes/disclaimer:
-
-- This module seems broken
 - The code does not conform to any linux kernel coding standard.
+- It has not been tested extensively.
+- It does work on a stock Slackware64 14.2 box.
 
 If anyone of the linux kernel staff wants to include a nullmodem in the kernel, please do. FreeBSD has one since 4.4.
