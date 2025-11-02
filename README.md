@@ -43,13 +43,14 @@ Known problems / limitations:
 Installation:
 
 Clone the repo and run make in the nullmodem directory.
-You will need to have "linux-headers" (>3.7) installed to compile the module.
+You will need to have "linux-headers" (>5.14) installed to compile the module.
 A small shell script, called "reload", (re-)loads the module and sets permissions
 of the /dev/nmp* devices.
 
-You can also add it as a driver in the kernel.
+You could also add it as a driver in 3.x kernels w/
 
 ```sh
+### XXX verify modern kernels
 cd src/linux # or wherever your sources live
 mkdir -p drivers/nullmodem/
 get -nc -P drivers/nullmodem/ https://github.com/dugoh/nullmodem/raw/master/nullmodem.c
@@ -81,6 +82,6 @@ You can uncomment them if you want.
 Notes/disclaimer:
 - The code does not conform to any linux kernel coding standard.
 - It has not been tested extensively.
-- It does work on a stock Slackware64 14.2 box.
+- It builds and loads on a modern Ubuntu box.
 
 If anyone of the linux kernel staff wants to include a nullmodem in the kernel, please do. FreeBSD has one since 4.4.
