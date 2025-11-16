@@ -1,4 +1,3 @@
-user@ubuntu-s-1vcpu-2gb-ams3-01:~/nullmodem/nullmodem$ cat nullmodem.c
 /* ########################################################################
 
    nullmodem - linux (>5.14) null modem emulator (kernel module)
